@@ -13,14 +13,14 @@ public interface I_Pool
 public class ObjectPooling<T> where T : Component, I_Pool
 {
     Transform Parent;
-    Queue<T> itemPool = new Queue<T>();
+    Stack<T> itemPool = new Stack<T>();  // Stack을 사용하여 LIFO 구조로 변경
 
     public void Initialize(T item, Transform Parent, int Count)
     {
         this.Parent = Parent;
         for (int i = 0; i < Count; i++)
         {
-            itemPool.Enqueue(CreateNewObject(item));
+            itemPool.Push(CreateNewObject(item));  // Stack에 Push
         }
     }
 
@@ -29,7 +29,7 @@ public class ObjectPooling<T> where T : Component, I_Pool
         var newObj = GameObject.Instantiate(obj);
         newObj.GetComponent<I_Pool>().SetPoolEvent((item) =>
         {
-            itemPool.Enqueue(newObj);
+            itemPool.Push(newObj);  // Stack에 Push
             newObj.gameObject.SetActive(false);
             newObj.gameObject.transform.SetParent(null);
         });
@@ -43,7 +43,7 @@ public class ObjectPooling<T> where T : Component, I_Pool
         T newObj = null;
         if (itemPool.Count > 0)
         {
-            newObj = itemPool.Dequeue();
+            newObj = itemPool.Pop();  // Stack에서 Pop
         }
         else
         {
